@@ -226,7 +226,7 @@ def to_color(nominal, tolerance=0.2):
         mult = MULTIPLIERS[int(log10(nominal))-1]
         return [first, second, mult]
     elif tolerance > 0.01:
-        mult = MULTIPLIERS[int(log10(nominal))-2]
+        mult = MULTIPLIERS[int(log10(nominal))-1]
         tol = TOLERANCE[tolerance * 100]
         return [first, second, mult, tol]
     else:
@@ -249,14 +249,49 @@ if __name__ == '__main__':
 
     response = json.loads(response['body'])
 
-    pprint(response)
-
     assert response['closest']['E96']['nominal'] == 249000
     assert response['closest']['E96']['colors'][0] == 'red'
     assert response['closest']['E96']['colors'][1] == 'yellow'
     assert response['closest']['E96']['colors'][2] == 'white'
     assert response['closest']['E96']['colors'][3] == 'orange'
     assert response['closest']['E96']['colors'][4] == 'brown'
+
+    event = {
+        'queryStringParameters': {
+            'value': '6.8k'
+        }
+    }
+
+    response = lambda_handler(
+        event=event,
+        context=None
+    )
+
+    response = json.loads(response['body'])
+
+    assert response['closest']['E6']['nominal'] == 6800
+    assert response['closest']['E6']['colors'][0] == 'blue'
+    assert response['closest']['E6']['colors'][1] == 'grey'
+    assert response['closest']['E6']['colors'][2] == 'red'
+
+    event = {
+        'queryStringParameters': {
+            'value': '750k'
+        }
+    }
+
+    response = lambda_handler(
+        event=event,
+        context=None
+    )
+
+    response = json.loads(response['body'])
+
+    assert response['closest']['E24']['nominal'] == 750000
+    assert response['closest']['E24']['colors'][0] == 'violet'
+    assert response['closest']['E24']['colors'][1] == 'green'
+    assert response['closest']['E24']['colors'][2] == 'yellow'
+    assert response['closest']['E24']['colors'][3] == 'gold'
 
     event = {
         'queryStringParameters': {
