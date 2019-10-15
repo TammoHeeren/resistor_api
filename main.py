@@ -154,8 +154,8 @@ def lambda_handler(event, context):
     series = event.get('resource', '/').upper().replace('/', '')
 
     # Get the desired value from the event
-    desired = event['queryStringParameters'].get('value', 0)
-    match = re.match(r'(\d*[.]?\d*)([mkMG]?)', desired)
+    desired = event['queryStringParameters'].get('value', '1')
+    match = re.match(r'(\d*[.]?\d*)([mkMG]?)', str(desired))
     desired = int(float(match.group(1)) * MULTIPLIER.get(match.group(2), 1))
 
     # Calculate normalizer
@@ -257,3 +257,18 @@ if __name__ == '__main__':
     assert response['closest']['E96']['colors'][2] == 'white'
     assert response['closest']['E96']['colors'][3] == 'orange'
     assert response['closest']['E96']['colors'][4] == 'brown'
+
+    event = {
+        'queryStringParameters': {
+            'value': 1234
+        }
+    }
+
+    response = lambda_handler(
+        event=event,
+        context=None
+    )
+
+    response = json.loads(response['body'])
+
+    pprint(response)
