@@ -148,7 +148,7 @@ TOLERANCE = {
 }
 
 
-def lambda_handler(event, context):
+def handler(event, context):
 
     # Extract the desired series, if any
     series = event.get('resource', '/').upper().replace('/', '')
@@ -242,7 +242,7 @@ if __name__ == '__main__':
         }
     }
 
-    response = lambda_handler(
+    response = handler(
         event=event,
         context=None
     )
@@ -262,7 +262,7 @@ if __name__ == '__main__':
         }
     }
 
-    response = lambda_handler(
+    response = handler(
         event=event,
         context=None
     )
@@ -280,7 +280,7 @@ if __name__ == '__main__':
         }
     }
 
-    response = lambda_handler(
+    response = handler(
         event=event,
         context=None
     )
@@ -299,7 +299,7 @@ if __name__ == '__main__':
         }
     }
 
-    response = lambda_handler(
+    response = handler(
         event=event,
         context=None
     )
@@ -307,3 +307,4 @@ if __name__ == '__main__':
     response = json.loads(response['body'])
 
     pprint(response)
+
