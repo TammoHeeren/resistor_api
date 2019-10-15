@@ -6,8 +6,8 @@ This is currently deployed at [api.tammoheeren.org/resistors]
 
 Usage:
 
-[https://api.tammoheeren.org/resistors/?value=1234](api.tammoheeren.org/resistors/?value=1234)
+[api.tammoheeren.org/resistors/?value=1234](https://api.tammoheeren.org/resistors/?value=1234)
 
 or 
 
-[https://api.tammoheeren.org/resistors/e24/?value=1234](api.tammoheeren.org/resistors/e24/?value=1234)
+[api.tammoheeren.org/resistors/e24/?value=1234](https://api.tammoheeren.org/resistors/e24/?value=1234)
