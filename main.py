@@ -1,6 +1,7 @@
 import json
 from math import log10
 from pprint import pprint
+import re
 
 E1 = [
     1.0
@@ -101,6 +102,51 @@ E192 = [
     9.76, 9.88
 ]
 
+BANDS = [
+    'black',
+    'brown',
+    'red',
+    'orange',
+    'yellow',
+    'green',
+    'blue',
+    'violet',
+    'grey',
+    'white'
+]
+
+MULTIPLIERS = {
+    -3: 'pink',
+    -2: 'silver',
+    -1: 'gold',
+    0: 'black',
+    1: 'brown',
+    2: 'red',
+    3: 'orange',
+    4: 'yellow',
+    5: 'green',
+    6: 'blue',
+    7: 'violet',
+    8: 'grey',
+    9: 'white',
+}
+
+MULTIPLIER = {
+    'm': 0.001,
+    'k': 1000,
+    'M': 1000000,
+    'G': 1000000000,
+}
+
+TOLERANCE = {
+    20: '',
+    10: 'silver',
+    5: 'gold',
+    1: 'brown',
+    2: 'red',
+    0.5: 'green',
+}
+
 
 def lambda_handler(event, context):
 
@@ -108,7 +154,9 @@ def lambda_handler(event, context):
     series = event.get('resource', '/').upper().replace('/', '')
 
     # Get the desired value from the event
-    desired = float(event['queryStringParameters'].get('value', 0))
+    desired = event['queryStringParameters'].get('value', 0)
+    match = re.match(r'(\d*[.]?\d*)([mkMG]?)', desired)
+    desired = int(float(match.group(1)) * MULTIPLIER.get(match.group(2), 1))
 
     # Calculate normalizer
     normalizer = 10 ** int(log10(desired))
@@ -119,12 +167,12 @@ def lambda_handler(event, context):
     calculated = {
         'E1': to_series(E1, normalized, normalizer),
         'E3': to_series(E3, normalized, normalizer),
-        'E6': to_series(E6, normalized, normalizer),
-        'E12': to_series(E12, normalized, normalizer),
-        'E24': to_series(E24, normalized, normalizer),
-        'E48': to_series(E48, normalized, normalizer),
-        'E96': to_series(E96, normalized, normalizer),
-        'E192': to_series(E192, normalized, normalizer),
+        'E6': to_series(E6, normalized, normalizer, 0.2),
+        'E12': to_series(E12, normalized, normalizer, 0.1),
+        'E24': to_series(E24, normalized, normalizer, 0.05),
+        'E48': to_series(E48, normalized, normalizer, 0.02),
+        'E96': to_series(E96, normalized, normalizer, 0.01),
+        'E192': to_series(E192, normalized, normalizer, 0.005),
     }
 
     body = dict(
@@ -150,7 +198,7 @@ def error(desired, standard):
     return abs((standard-desired) / desired)
 
 
-def to_series(series, normalized, normalizer):
+def to_series(series, normalized, normalizer, tolerance=0.2):
 
     series.append(series[0] * 10)
 
@@ -159,37 +207,53 @@ def to_series(series, normalized, normalizer):
 
     result = results[0][-1]
 
-    nominal = result * normalizer
+    nominal = int(result * normalizer)
+
+    colors = to_color(nominal=nominal, tolerance=tolerance)
 
     return dict(
         nominal=nominal,
+        colors=colors,
+        tolerance=tolerance,
     )
+
+
+def to_color(nominal, tolerance=0.2):
+
+    first, second, third, forth, = [BANDS[j] for j in [int(i) for i in '{0:1.5f}'.format(nominal*10000)[0:4]]]
+
+    if tolerance >= 0.2:
+        mult = MULTIPLIERS[int(log10(nominal))-1]
+        return [first, second, mult]
+    elif tolerance > 0.01:
+        mult = MULTIPLIERS[int(log10(nominal))-2]
+        tol = TOLERANCE[tolerance * 100]
+        return [first, second, mult, tol]
+    else:
+        mult = MULTIPLIERS[int(log10(nominal))-2]
+        tol = TOLERANCE[tolerance * 100]
+        return [first, second, third, mult, tol]
 
 
 if __name__ == '__main__':
     event = {
         'queryStringParameters': {
-            'value': '1234'
+            'value': '249k'
         }
     }
 
-    pprint(
-        lambda_handler(
-            event=event,
-            context=None
-        )
+    response = lambda_handler(
+        event=event,
+        context=None
     )
 
-    event = {
-        'resource': 'e24/',
-        'queryStringParameters': {
-            'value': '1234'
-        }
-    }
+    response = json.loads(response['body'])
 
-    pprint(
-        lambda_handler(
-            event=event,
-            context=None
-        )
-    )
+    pprint(response)
+
+    assert response['closest']['E96']['nominal'] == 249000
+    assert response['closest']['E96']['colors'][0] == 'red'
+    assert response['closest']['E96']['colors'][1] == 'yellow'
+    assert response['closest']['E96']['colors'][2] == 'white'
+    assert response['closest']['E96']['colors'][3] == 'orange'
+    assert response['closest']['E96']['colors'][4] == 'brown'
