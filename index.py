@@ -192,7 +192,7 @@ def handler(event, context):
     if series:
         return {
             'statusCode': 200,
-            'body': json.dumps(body['closest'][series]['nominal'])
+            'body': json.dumps(body['closest'][series])
         }
 
     return {

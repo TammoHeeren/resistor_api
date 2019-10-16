@@ -77,7 +77,7 @@ class TestHandlerCase(unittest.TestCase):
 
         response = json.loads(response['body'])
 
-        self.assertEqual(response, 1200)
+        self.assertEqual(response['nominal'], 1200)
 
     def test_path_null(self):
 
