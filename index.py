@@ -151,7 +151,7 @@ TOLERANCE = {
 def handler(event, context):
 
     # Extract the desired series, if any
-    series = event.get('resource', '/').upper().replace('/', '')
+    series = event.get('pathParameters', {}).get('series', '').upper()
 
     # Get the desired value from the event
     desired = event['queryStringParameters'].get('value', '1')

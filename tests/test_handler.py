@@ -66,6 +66,19 @@ class TestHandlerCase(unittest.TestCase):
         self.assertEqual(response['closest']['E24']['colors'][2], 'yellow')
         self.assertEqual(response['closest']['E24']['colors'][3], 'gold')
 
+    def test_path_e24(self):
+
+        event = {
+            'queryStringParameters': {'value': 1234},
+            'pathParameters': {'series': 'e24'},
+        }
+
+        response = index.handler(event, None)
+
+        response = json.loads(response['body'])
+
+        self.assertEqual(response, 1200)
+
 
 if __name__ == '__main__':
     unittest.main()
