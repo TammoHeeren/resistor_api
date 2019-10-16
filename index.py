@@ -151,7 +151,11 @@ TOLERANCE = {
 def handler(event, context):
 
     # Extract the desired series, if any
-    series = event.get('pathParameters', {}).get('series', '')
+    pathParameters = event.get('pathParameters')
+    series = None
+
+    if pathParameters:
+        series = pathParameters.get('series')
 
     if series:
         series = series.upper()

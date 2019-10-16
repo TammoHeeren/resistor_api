@@ -83,7 +83,7 @@ class TestHandlerCase(unittest.TestCase):
 
         event = {
             'queryStringParameters': {'value': 1234},
-            'pathParameters': {'series': None},
+            'pathParameters': None,
         }
 
         response = index.handler(event, None)
