@@ -79,6 +79,17 @@ class TestHandlerCase(unittest.TestCase):
 
         self.assertEqual(response, 1200)
 
+    def test_path_null(self):
+
+        event = {
+            'queryStringParameters': {'value': 1234},
+            'pathParameters': {'series': None},
+        }
+
+        response = index.handler(event, None)
+
+        self.assertEqual(response['statusCode'], 200)
+
 
 if __name__ == '__main__':
     unittest.main()
